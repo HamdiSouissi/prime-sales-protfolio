@@ -1,0 +1,15 @@
+# Runtime data is intentionally kept outside version control.
+/storage/covers/*
+!/storage/covers/.gitkeep
+/storage/branding/*
+!/storage/branding/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Local editor / OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+.venv/
