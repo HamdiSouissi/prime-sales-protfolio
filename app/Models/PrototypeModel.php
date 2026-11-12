@@ -85,13 +85,14 @@ final class PrototypeModel extends Model
 
     public function create(array $data): int
     {
-        $statement = $this->db->prepare('INSERT INTO prototypes (name, category_id, domain_id, description, url, created_by) VALUES (:name, :category_id, :domain_id, :description, :url, :created_by)');
+        $statement = $this->db->prepare('INSERT INTO prototypes (name, category_id, domain_id, description, url, cover_path, created_by) VALUES (:name, :category_id, :domain_id, :description, :url, :cover_path, :created_by)');
         $statement->execute([
             'name' => trim($data['name']),
             'category_id' => (int) $data['category_id'],
             'domain_id' => (int) $data['domain_id'],
             'description' => trim($data['description']) ?: null,
             'url' => trim($data['url']),
+            'cover_path' => $data['cover_path'] ?? null,
             'created_by' => (int) $data['created_by'],
         ]);
         return (int) $this->db->lastInsertId();

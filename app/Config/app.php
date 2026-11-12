@@ -10,10 +10,4 @@ return [
     'debug' => false,
     'pagination' => 12,
     'session_name' => 'prime_sales_session',
-    'screenshot' => [
-        // Optional ScreenshotOne access key. When empty, the built-in fallback cover is used.
-        'access_key' => '',
-        'endpoint' => 'https://api.screenshotone.com/take',
-        'timeout' => 75,
-    ],
 ];

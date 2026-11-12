@@ -80,6 +80,10 @@
       if (!file || !file.type.startsWith('image/')) return;
       const preview = input.closest('.upload-drop')?.querySelector('img');
       if (preview) preview.src = URL.createObjectURL(file);
+      const fileName = input.closest('.upload-drop')?.querySelector('[data-file-name]');
+      if (fileName) fileName.textContent = file.name;
+      const removeCover = input.form?.querySelector('[data-remove-cover]');
+      if (removeCover) removeCover.checked = false;
     });
   });
 

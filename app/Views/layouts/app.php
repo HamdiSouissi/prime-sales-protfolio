@@ -22,10 +22,11 @@ if ($isAdmin) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0B1020">
+    <meta name="theme-color" content="#F4F7FF">
     <title><?= e($pageTitle ?? 'Espace') ?> · <?= e($company) ?></title>
     <link rel="icon" href="<?= e(url('/media/brand/favicon')) ?>">
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('css/light-theme.css')) ?>">
     <script src="<?= e(asset('js/app.js')) ?>" defer></script>
 </head>
 <body class="app-body">

@@ -27,7 +27,7 @@ final class MediaController extends BaseController
                 default => 'image/jpeg',
             };
         }
-        $this->sendFile($path, $mime, 'private, max-age=86400');
+        $this->sendFile($path, $mime, 'private, no-cache, must-revalidate');
     }
 
     public function brand(Request $request, array $params): void

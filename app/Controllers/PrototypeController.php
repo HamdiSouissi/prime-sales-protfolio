@@ -6,7 +6,8 @@ namespace PrimeSales\Controllers;
 
 use PDOException;
 use PrimeSales\Core\Request;
-use PrimeSales\Services\ScreenshotService;
+use PrimeSales\Services\PrototypeCoverService;
+use RuntimeException;
 use Throwable;
 
 final class PrototypeController extends BaseController
@@ -31,12 +32,7 @@ final class PrototypeController extends BaseController
         $filters = $this->filters($request);
         $perPage = max(6, min(24, (int) ($GLOBALS['app_config']['pagination'] ?? 12)));
         $result = $this->prototypes->paginate($filters, (int) $request->query('page', 1), $perPage);
-        $result['items'] = array_map(static function (array $item): array {
-            $item['cover_url'] = !empty($item['cover_path'])
-                ? url('/media/cover/' . (int) $item['id'])
-                : asset('images/cover-fallback.svg');
-            return $item;
-        }, $result['items']);
+        $result['items'] = $this->withCoverUrls($result['items']);
 
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store, private');
@@ -67,21 +63,28 @@ final class PrototypeController extends BaseController
             redirect('/prototypes/create');
         }
 
-        $data['created_by'] = (int) $this->auth->user()['id'];
+        $coverService = new PrototypeCoverService();
         try {
-            $id = $this->prototypes->create($data);
-            $cover = (new ScreenshotService())->capture($data['url']);
-            $this->prototypes->updateCover($id, $cover);
+            $data['cover_path'] = $coverService->store($_FILES['cover'] ?? []);
+        } catch (RuntimeException $exception) {
+            remember_input($request->all());
+            flash('danger', $exception->getMessage());
+            redirect('/prototypes/create');
+        }
+        $data['created_by'] = (int) $this->auth->user()['id'];
+
+        try {
+            $this->prototypes->create($data);
             clear_old_input();
-            flash('success', $cover
-                ? 'Prototype ajouté avec sa capture de couverture.'
-                : 'Prototype ajouté. Une couverture par défaut sera affichée (capture à configurer ou indisponible).');
+            flash('success', $data['cover_path']
+                ? 'Prototype ajouté avec sa couverture.'
+                : 'Prototype ajouté. La couverture par défaut sera affichée jusqu’à l’ajout d’une image.');
         } catch (PDOException $exception) {
+            $coverService->delete($data['cover_path']);
             error_log('[Prime Sales] Prototype insert failed: ' . $exception->getMessage());
+            remember_input($request->all());
             flash('danger', 'Impossible d’ajouter ce prototype. Vérifiez les informations saisies.');
-        } catch (Throwable $exception) {
-            error_log('[Prime Sales] Screenshot failed: ' . $exception->getMessage());
-            flash('warning', 'Prototype ajouté, mais la capture a échoué. La couverture par défaut sera utilisée.');
+            redirect('/prototypes/create');
         }
         redirect('/prototypes');
     }
@@ -115,18 +118,36 @@ final class PrototypeController extends BaseController
             redirect('/prototypes/' . $id . '/edit');
         }
 
+        $coverService = new PrototypeCoverService();
+        $uploadedCover = null;
+        $newCoverPath = $prototype['cover_path'];
         try {
-            $this->prototypes->update($id, $data);
-            if ((string) $prototype['url'] !== $data['url']) {
-                $newCover = (new ScreenshotService())->capture($data['url']);
-                $this->prototypes->updateCover($id, $newCover);
-                if ($newCover !== $prototype['cover_path']) {
-                    (new ScreenshotService())->delete($prototype['cover_path']);
+            if ($request->input('remove_cover') === '1') {
+                $newCoverPath = null;
+            } else {
+                $uploadedCover = $coverService->store($_FILES['cover'] ?? []);
+                if ($uploadedCover !== null) {
+                    $newCoverPath = $uploadedCover;
                 }
             }
+        } catch (RuntimeException $exception) {
+            remember_input($request->all());
+            flash('danger', $exception->getMessage());
+            redirect('/prototypes/' . $id . '/edit');
+        }
+
+        try {
+            $this->prototypes->update($id, $data);
+            if ($newCoverPath !== $prototype['cover_path']) {
+                $this->prototypes->updateCover($id, $newCoverPath);
+                $coverService->delete($prototype['cover_path']);
+            }
             clear_old_input();
-            flash('success', 'Prototype mis à jour.');
+            flash('success', $newCoverPath
+                ? 'Prototype mis à jour avec sa couverture.'
+                : 'Prototype mis à jour. La couverture par défaut sera affichée.');
         } catch (Throwable $exception) {
+            $coverService->delete($uploadedCover);
             error_log('[Prime Sales] Prototype update failed: ' . $exception->getMessage());
             flash('danger', 'La mise à jour a échoué. Réessayez ou vérifiez les champs.');
         }
@@ -138,7 +159,7 @@ final class PrototypeController extends BaseController
         $prototype = $this->prototypes->find((int) ($params['id'] ?? 0));
         if ($prototype) {
             $this->prototypes->delete((int) $prototype['id']);
-            (new ScreenshotService())->delete($prototype['cover_path'] ?? null);
+            (new PrototypeCoverService())->delete($prototype['cover_path'] ?? null);
             flash('success', 'Prototype supprimé de la bibliothèque.');
         } else {
             flash('warning', 'Ce prototype a déjà été supprimé.');

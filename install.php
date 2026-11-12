@@ -74,16 +74,18 @@ if ($alreadyInstalled) {
 
 $brand = e(asset('images/brand-mark.svg'));
 $css = e(asset('css/app.css'));
+$lightCss = e(asset('css/light-theme.css'));
 ?>
 <!doctype html>
 <html lang="fr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0B1020">
+    <meta name="theme-color" content="#F4F7FF">
     <title>Installation · Prime Sales</title>
     <link rel="icon" href="<?= e(asset('images/favicon.svg')) ?>" type="image/svg+xml">
     <link rel="stylesheet" href="<?= $css ?>">
+    <link rel="stylesheet" href="<?= $lightCss ?>">
 </head>
 <body class="guest-body install-body">
 <div class="ambient ambient--one"></div><div class="ambient ambient--two"></div>

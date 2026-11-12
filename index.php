@@ -33,7 +33,8 @@ try {
     $setupUrl = url('/install.php');
     $title = e((string) (($GLOBALS['app_config']['name'] ?? 'Prime Sales')));
     $asset = e(asset('css/app.css'));
-    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Configuration requise · ' . $title . '</title><link rel="stylesheet" href="' . $asset . '"></head><body class="guest-body"><main class="setup-error"><div class="brand-mark">P</div><span class="eyebrow">PREMIÈRE CONFIGURATION</span><h1>La bibliothèque se prépare.</h1><p>Configurez les identifiants MySQL dans <code>app/Config/database.php</code>, créez la base depuis votre hébergeur, puis lancez l’installation sécurisée.</p><a class="button button-primary" href="' . e($setupUrl) . '">Ouvrir l’installation ' . icon('arrow-right') . '</a></main></body></html>';
+    $lightAsset = e(asset('css/light-theme.css'));
+    echo '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Configuration requise · ' . $title . '</title><link rel="stylesheet" href="' . $asset . '"><link rel="stylesheet" href="' . $lightAsset . '"></head><body class="guest-body"><main class="setup-error"><div class="brand-mark">P</div><span class="eyebrow">PREMIÈRE CONFIGURATION</span><h1>La bibliothèque se prépare.</h1><p>Configurez les identifiants MySQL dans <code>app/Config/database.php</code>, créez la base depuis votre hébergeur, puis lancez l’installation sécurisée.</p><a class="button button-primary" href="' . e($setupUrl) . '">Ouvrir l’installation ' . icon('arrow-right') . '</a></main></body></html>';
     exit;
 }
 

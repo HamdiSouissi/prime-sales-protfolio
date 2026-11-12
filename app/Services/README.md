@@ -1,1 +1,1 @@
-The services in this directory are loaded by the native PHP autoloader. See the project README for installation and ScreenshotOne configuration.
+Services handle installation, validation of image uploads, and secure storage for the native PHP application. See the project README for deployment instructions.
